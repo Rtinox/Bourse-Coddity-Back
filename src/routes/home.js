@@ -1,6 +1,7 @@
 const router = require('express').Router
+const { home: homeRouter } = require('../middlewares');
 
-router.get('/', (req, res) => {
+router.get('/', [homeRouter], (req, res) => {
     res.send("Salut !");
 });
 
