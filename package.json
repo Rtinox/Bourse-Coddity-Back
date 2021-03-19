@@ -1,10 +1,19 @@
 {
-  "name": "Bourse-Codity-Back",
+  "name": "bourse-codity-back",
   "version": "1.0.0",
   "dependencies": {
+    "body-parser": "^1.19.0",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
+    "joi": "^17.4.0",
+    "lodash": "^4.17.21",
     "mongoose": "^5.11.15"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "coveragePathIgnorePatterns": [
+      "/node_modules/"
+    ]
   },
   "scripts": {
     "start": "node src/index.js",
