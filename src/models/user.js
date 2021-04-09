@@ -37,6 +37,10 @@ const userSchema = new mongoose.Schema({
     minlenght: 5,
     maxlenght: 1024,
   },
+  role: {
+    type: String,
+    default: 'user',
+  },
 });
 
 function validate(user) {
