@@ -11,11 +11,11 @@ router.get('/', [auth], async (req, res) => {
 });
 
 router.post('/new', async (req, res) => {
-  // TODO: Check if user isn't authed
+  // TODO: Check if user isn't authed or if it is not admin
   const { error } = validate(req.body);
   if (error) return res.send(400, format(false, error.details[0].message));
 
-  const user = new User(req.body).save();
+  const user = await new User(req.body).save();
 
   res.send(format(true, user));
 });
