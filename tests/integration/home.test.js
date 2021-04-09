@@ -2,10 +2,11 @@ const request = require('supertest');
 let server;
 
 describe('/', () => {
-  beforeEach(() => {
+  beforeAll(() => {
     server = require('../../src');
   });
-  afterEach(() => {
+  afterAll(() => {
+    if (!server) return;
     server.close();
   });
 

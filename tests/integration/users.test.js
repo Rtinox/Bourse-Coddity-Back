@@ -6,12 +6,12 @@ const {
 let server;
 
 describe('/users/', () => {
-  beforeEach(() => {
+  beforeAll(() => {
     server = require('../../src');
   });
-  afterEach(async () => {
-    server.close();
-    await User.remove({});
+  afterAll(async () => {
+    if (server) server.close();
+    await User.deleteMany({});
   });
 
   describe('GET /', () => {
@@ -59,19 +59,26 @@ describe('/users/', () => {
   });
 
   describe('POST /', () => {
-    it('should create the user if everythin is valid', async () => {
+    it('should create the user if everything is valid', (done) => {
       const user = {
-        name: 'Test1',
+        pseudo: 'Test1',
         email: 'pjgame84@gmail.com',
         password: 'MonSuperMdp;)',
       };
 
-      const res = await request(server).post('/users/new').send(user);
-
-      const users = await User.find({ name: 'Test1' });
-      expect(res.status).toBe(200);
-      expect(res.body.valid).toBeTruthy();
-      expect(res.body.data).toEqual(expect.arrayContaining(users));
+      return request(server)
+        .post('/users/new')
+        .send(user)
+        .set('Accept', 'application/json')
+        .expect('Content-Type', /json/)
+        .expect(200)
+        .then(async (res) => {
+          const users = await User.findOne({ pseudo: 'Test1' });
+          expect(res.body.valid).toBeTruthy();
+          expect(JSON.stringify(users)).toBe(JSON.stringify(res.body.data));
+          done();
+        })
+        .catch((err) => done(err));
     });
   });
 });

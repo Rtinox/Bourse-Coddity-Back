@@ -1,6 +1,6 @@
-module.exports = (valid, body) => {
+module.exports = (valid, data) => {
   return {
     valid,
-    data: body,
+    data,
   };
 };
