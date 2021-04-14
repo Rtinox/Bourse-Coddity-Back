@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const _ = require('lodash');
+const mongoose = require('mongoose');
 const { auth, format } = require('../middlewares');
 const {
   password: { hash },
@@ -33,11 +34,14 @@ router.post('/new', async (req, res) => {
 });
 
 router.get('/:userId', [auth('user')], async (req, res) => {
-  const user = await User.findById(req.params.userId);
+  if (!mongoose.isValidObjectId(req.params.userId))
+    return res.status(400).send(format(false, { message: 'Invalid userId !' }));
+
+  const user = await User.findById(req.params.userId).select('-password');
   if (!user)
     return res
       .status(404)
-      .send(format(false, 'No user found for the provided ID !'));
+      .send(format(false, { message: 'No user found for the provided ID !' }));
 
   res.send(format(true, user));
 });

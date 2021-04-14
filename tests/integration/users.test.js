@@ -1,5 +1,6 @@
 const request = require('supertest');
 const _ = require('lodash');
+const mongoose = require('mongoose');
 const {
   password: { hash },
 } = require('../../src/common');
@@ -178,6 +179,83 @@ describe('POST /new', () => {
         expect(users).toBeDefined();
         expect(res.body.data.pseudo).toBe(userSend.pseudo);
         expect(res.body.data.email).toBe(userSend.email);
+        expect(res.body.data.password).toBeUndefined();
+        done();
+      });
+  });
+});
+
+describe('GET /:userId', () => {
+  let req;
+  let user;
+  let authToken;
+  beforeEach(async () => {
+    user = await new User({
+      pseudo: 'TestUser',
+      email: 'testuser@gmail.com',
+      password: 'testuserpassword-',
+    }).save();
+    authToken = await new AuthToken({
+      authToken: user.getJWT(),
+      refreshToken: user.getRefreshJWT(),
+    }).save();
+    req = request(app);
+  });
+  afterAll(async () => {
+    await User.deleteMany({});
+    await AuthToken.deleteMany({});
+  });
+
+  it('should return 401 if the user is not connected', (done) => {
+    return req
+      .get('/users/123')
+      .send()
+      .expect(401)
+      .then((res) => {
+        expect(res.body.valid).toBe(false);
+        done();
+      });
+  });
+
+  it('should return 400 if the userId isnt valid', (done) => {
+    return req
+      .get('/users/123')
+      .set('Authorization', 'Bearer: ' + authToken.authToken)
+      .send()
+      .expect(400)
+      .then((res) => {
+        expect(res.body.valid).toBe(false);
+        done();
+      });
+  });
+
+  it('should return 404 if the user doesnt exists', (done) => {
+    return req
+      .get('/users/' + new mongoose.Types.ObjectId())
+      .set('Authorization', 'Bearer: ' + authToken.authToken)
+      .send()
+      .expect(404)
+      .then((res) => {
+        expect(res.body.valid).toBe(false);
+        done();
+      });
+  });
+
+  it('should return 200 & the user', async (done) => {
+    const new_user = await new User({
+      pseudo: 'TestUser',
+      email: 'testuser@gmail.com',
+      password: 'userpassword-',
+    }).save();
+    return req
+      .get('/users/' + new_user._id)
+      .set('Authorization', 'Bearer: ' + authToken.authToken)
+      .send()
+      .expect(200)
+      .then((res) => {
+        expect(res.body.valid).toBe(true);
+        expect(res.body.data.pseudo).toBe(new_user.pseudo);
+        expect(res.body.data.email).toBe(new_user.email);
         expect(res.body.data.password).toBeUndefined();
         done();
       });
