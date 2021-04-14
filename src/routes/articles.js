@@ -11,7 +11,7 @@ router.get('/:limit', async (req, res) => {
   res.send(format(true, articles));
 });
 
-router.post('/new', auth, async (req, res) => {
+router.post('/new', auth('user'), async (req, res) => {
   const { error } = validate(req.body);
   if (error)
     return res.status(400).send(format(false, error.details[0].message));

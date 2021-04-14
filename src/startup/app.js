@@ -1,8 +1,14 @@
+require('dotenv').config();
+
 const bodyParser = require('body-parser');
+const express = require('express');
+const app = express();
 
-module.exports = (app) => {
-  app.use(bodyParser.urlencoded({ extended: true }));
-  app.use(bodyParser.json());
+require('./env_check');
+require('./db')();
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
-  require('../routes')(app);
-};
+require('../routes')(app);
+
+module.exports = app;
