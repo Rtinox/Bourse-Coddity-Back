@@ -33,6 +33,18 @@ describe('GET /', () => {
     await AuthToken.deleteMany({});
   });
 
+  it('should return 401 if not logged in', (done) => {
+    return req
+      .unset('Authorization')
+      .send({})
+      .expect(401)
+      .then((res) => {
+        expect(res.body.valid).toBe(false);
+
+        done();
+      });
+  });
+
   it('should the 5 last users', async (done) => {
     const users = [
       {
@@ -72,7 +84,7 @@ describe('GET /', () => {
       .send()
       .expect(200)
       .then((res) => {
-        expect(res.body.valid).toBeTruthy();
+        expect(res.body.valid).toBe(true);
         expect(res.body.data.length).toBe(5);
         done();
       });

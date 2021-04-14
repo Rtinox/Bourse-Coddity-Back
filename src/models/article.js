@@ -34,7 +34,7 @@ const validate = (body) => {
     title: Joi.string().required(),
     text: Joi.string().required(),
     sources: Joi.array(),
-    contributors: Joi.array(),
+    contributors: Joi.array().required(),
   });
 
   return schema.validate(body);
