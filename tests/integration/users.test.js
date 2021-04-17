@@ -14,7 +14,7 @@ describe('GET /', () => {
   let req;
   let user;
   let authToken;
-  beforeEach(async () => {
+  beforeAll(async () => {
     user = await new User({
       pseudo: 'TestUser',
       email: 'testuser@gmail.com',
@@ -24,9 +24,10 @@ describe('GET /', () => {
       authToken: user.getJWT(),
       refreshToken: user.getRefreshJWT(),
     }).save();
-    req = request(app)
-      .get('/users/')
-      .set('Authorization', 'Bearer: ' + authToken.authToken);
+    req = () =>
+      request(app)
+        .get('/users/')
+        .set('Authorization', 'Bearer: ' + authToken.authToken);
   });
   afterAll(async () => {
     await User.deleteMany({});
@@ -34,7 +35,7 @@ describe('GET /', () => {
   });
 
   it('should return 401 if not logged in', (done) => {
-    return req
+    return req()
       .unset('Authorization')
       .send({})
       .expect(401)
@@ -80,7 +81,7 @@ describe('GET /', () => {
     ];
 
     await User.insertMany(users);
-    return req
+    return req()
       .send()
       .expect(200)
       .then((res) => {

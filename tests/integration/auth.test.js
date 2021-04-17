@@ -12,18 +12,20 @@ const {
 
 describe('POST /login', () => {
   let req;
-  beforeEach(() => {
-    req = request(app)
-      .post('/auth/login')
-      .set('Accept', 'application/json')
-      .expect('Content-Type', /json/);
+  beforeAll(() => {
+    req = () =>
+      request(app)
+        .post('/auth/login')
+        .set('Accept', 'application/json')
+        .expect('Content-Type', /json/);
   });
   afterAll(async () => {
     await User.deleteMany({});
+    await AuthToken.deleteMany({});
   });
 
   it('should return an 400 if pseudo and/or email and password is not provided', (done) => {
-    return req
+    return req()
       .send({})
       .expect(400)
       .then((res) => {
@@ -33,7 +35,7 @@ describe('POST /login', () => {
   });
 
   it('should return an 400 if password is not provided', (done) => {
-    return req
+    return req()
       .send({ pseudo: 'Hello' })
       .expect(400)
       .then((res) => {
@@ -43,7 +45,7 @@ describe('POST /login', () => {
   });
 
   it('should return an 400 if pseudo or email is not provided', (done) => {
-    return req
+    return req()
       .send({ password: 'Hello' })
       .expect(400)
       .then((res) => {
@@ -53,7 +55,7 @@ describe('POST /login', () => {
   });
 
   it('should return an 400 if pseudo and email is provided', (done) => {
-    return req
+    return req()
       .send({ pseudo: 'Hello', email: 'hello@gmail.com', password: 'Hello' })
       .expect(400)
       .then((res) => {
@@ -63,7 +65,7 @@ describe('POST /login', () => {
   });
 
   it('should return an 400 if email is invalid', (done) => {
-    return req
+    return req()
       .send({ email: 'hello', password: 'Hello' })
       .expect(400)
       .then((res) => {
@@ -73,7 +75,7 @@ describe('POST /login', () => {
   });
 
   it('should return an 403 if user doesnt exists', (done) => {
-    return req
+    return req()
       .send({ pseudo: 'hello', password: 'Hello' })
       .expect(403)
       .then((res) => {
@@ -91,7 +93,7 @@ describe('POST /login', () => {
 
     await new User(user).save();
 
-    return req
+    return req()
       .send({ pseudo: 'hello', password: 'Hello' })
       .expect(403)
       .then((res) => {
@@ -109,7 +111,7 @@ describe('POST /login', () => {
 
     await new User(user).save();
 
-    return req
+    return req()
       .send({ pseudo: 'hello', password: 'HelloDifferent' })
       .expect(200)
       .then(async (res) => {
