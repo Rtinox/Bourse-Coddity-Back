@@ -42,11 +42,12 @@ const validate = (body) => {
 
 const searchValidate = (body) => {
   const schema = Joi.object({
+    $or: Joi.any(),
     title: Joi.any(),
     text: Joi.any(),
     sources: Joi.any(),
     contributors: Joi.any(),
-  }).or('title', 'text', 'sources', 'contributors');
+  }).or('$or', 'title', 'text', 'sources', 'contributors');
 
   return schema.validate(body);
 };
