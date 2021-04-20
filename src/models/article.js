@@ -40,7 +40,19 @@ const validate = (body) => {
   return schema.validate(body);
 };
 
+const searchValidate = (body) => {
+  const schema = Joi.object({
+    title: Joi.any(),
+    text: Joi.any(),
+    sources: Joi.any(),
+    contributors: Joi.any(),
+  }).or('title', 'text', 'sources', 'contributors');
+
+  return schema.validate(body);
+};
+
 module.exports = {
   Model: mongoose.model('Article', articleSchema),
   validate,
+  searchValidate,
 };

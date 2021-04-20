@@ -107,6 +107,64 @@ describe('GET /articles/id/:articleID', () => {
   });
 });
 
+describe('POST /seatch', () => {
+  let req;
+  let articles;
+  beforeAll(async () => {
+    articles = [
+      {
+        title: 'MyArticle',
+        text: 'A new article for a new system',
+        contributors: [new mongoose.Types.ObjectId()],
+      },
+      {
+        title: 'MySecondTitle',
+        text: 'This is another test for another system',
+        contributors: [new mongoose.Types.ObjectId()],
+      },
+      {
+        title: 'MyThirdThing',
+        text: 'Antoher test for another thing',
+        contributors: [new mongoose.Types.ObjectId()],
+      },
+    ];
+    await Article.insertMany(articles);
+    req = () =>
+      request(app)
+        .post('/articles/search')
+        .set('Accept', 'application/json')
+        .expect('Content-Type', /json/);
+  });
+  afterAll(async () => {
+    await Articles.deleteMany({});
+  });
+
+  it('should return one article', () => {
+    return req()
+      .send({ title: 'MyArticle' })
+      .expect(200)
+      .then((res) => {
+        expect(res.body.valid).toBe(true);
+        expect(res.body.data.length).toBe(1);
+        expect(res.body.data[0].title).toBe(articles[0].title);
+        expect(res.body.data[0].text).toBe(articles[0].text);
+      });
+  });
+
+  it('should return three articles', () => {
+    return req()
+      .send({ title: { $regex: 'My', $options: 'i' } })
+      .expect(200)
+      .then((res) => {
+        expect(res.body.valid).toBe(true);
+        expect(res.body.data.length).toBe(3);
+        expect(res.body.data[0].title).toBe(articles[0].title);
+        expect(res.body.data[1].title).toBe(articles[1].title);
+        expect(res.body.data[2].title).toBe(articles[2].title);
+      });
+  });
+});
+
 describe('POST /articles/new', () => {
   let req;
   let user;
