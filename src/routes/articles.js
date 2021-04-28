@@ -83,7 +83,7 @@ router.put('/:articleID', auth('user'), async (req, res) => {
   const { contributors } = article;
   if (!article.contributors.includes(req.auth.user._id))
     contributors.push(req.auth.user._id);
-  const article = await Article.findOneAndUpdate(articleID, {
+  await article.update({
     ...req.body,
     contributors,
   });
