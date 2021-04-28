@@ -4,6 +4,7 @@ const { auth, format } = require('../middlewares');
 const {
   Article: { Model: Article, validate, searchValidate },
 } = require('../models');
+const article = require('../models/article');
 
 router.get('/:limit', async (req, res) => {
   const limit = Math.min(req.params.limit, 10);
@@ -50,7 +51,10 @@ router.post('/new', auth('user'), async (req, res) => {
       .status(400)
       .send(format(false, { message: error.details[0].message }));
 
-  const article = await new Article(req.body).save();
+  const article = await new Article({
+    ...req.body,
+    contributors: [req.auth.user._id],
+  }).save();
 
   res.send(format(true, article));
 });
@@ -68,11 +72,21 @@ router.put('/:articleID', auth('user'), async (req, res) => {
       .status(400)
       .send(format(false, { message: error.details[0].message }));
 
-  const article = await Article.findByIdAndUpdate(articleID, req.body);
+  delete req.body.contributors;
+
+  const article = await Article.findById(articleID);
   if (!article)
     return res
       .status(404)
       .send(format(false, { message: 'No article found for the given ID !' }));
+
+  const { contributors } = article;
+  if (!article.contributors.includes(req.auth.user._id))
+    contributors.push(req.auth.user._id);
+  const article = await Article.findOneAndUpdate(articleID, {
+    ...req.body,
+    contributors,
+  });
 
   res.send(format(true, article));
 });
