@@ -17,5 +17,4 @@ npm i // Install packages
 node . // Run
 ```
 
-[FrontEnd](https://github.com/Rtinox/Bourse-Codity-Front)
-Now, you can config backend url in front project
+Now, you can config backend url in [FrontEnd](https://github.com/Rtinox/Bourse-Codity-Front) project
